@@ -8,8 +8,7 @@ import { Redirect } from "@shopify/app-bridge/actions";
 import "@shopify/polaris/dist/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
 
-declare var API_KEY: string; // 追加
-
+declare var API_KEY: string;
 function userLoggedInFetch(app:any) {
   const fetchFunction = authenticatedFetch(app);
 
@@ -25,7 +24,6 @@ function userLoggedInFetch(app:any) {
 
       const redirect = Redirect.create(app);
       redirect.dispatch(Redirect.Action.APP, authUrlHeader || `/auth`);
-      return null;
     }
 
     return response;
@@ -34,9 +32,10 @@ function userLoggedInFetch(app:any) {
 
 function MyProvider(props:any) {
   const app = useAppBridge();
+  const result = userLoggedInFetch(app)
 
   const client = new ApolloClient({
-    fetch: userLoggedInFetch(app),
+    fetch: result,
     fetchOptions: {
       credentials: "include",
     },
@@ -51,7 +50,7 @@ function MyProvider(props:any) {
   );
 }
 
-class MyApp extends App {
+class MyApp extends App<{host:any}> {
   render() {
     const { Component, pageProps, host } = this.props;
     return (
@@ -72,6 +71,7 @@ class MyApp extends App {
 
 MyApp.getInitialProps = async ({ ctx }) => {
   return {
+    pageProps:"",
     host: ctx.query.host,
   };
 };
